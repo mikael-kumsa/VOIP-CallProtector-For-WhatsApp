@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">WhatsApp Call Protector</string>
     <string name="welcome_title">WhatsApp Call Protector</string>
+    <string name="app_description">WhatsApp Call Protector automatically enables Do Not Disturb mode during WhatsApp calls to prevent interruptions. The app requires Accessibility permission to detect WhatsApp calls, Do Not Disturb access to silence incoming calls, and microphone permission to distinguish between calls and voice messages. All processing happens locally on your device - no data is collected or shared.</string>
     <string name="welcome_description">Automatically enable Do Not Disturb during WhatsApp calls to avoid interruptions</string>
     <string name="start_protection">Start Protection</string>
     <string name="stop_protection">Stop Protection</string>
@@ -17,7 +18,7 @@
     
 
     <!-- Privacy Policy Link-->
-    <string name="privacy_policy_url">https://whatsappcallprotector.michaelkumsa.com/privacy-policy.html</string>
+    <string name="privacy_policy_url">https://whatsappcallprotector.michaelkumsa.com/privacy-policy</string>
 
     <!-- WhatsApp UI Elements for detection -->
     <string name="whatsapp_call_screen_indicator">voip__video_ongoing_background</string>

@@ -13,7 +13,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.lal.whatsappcallprotector" // CHANGE THIS!
+        applicationId = "com.lal.whatsappcallprotector" 
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -88,10 +88,9 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-
-   
-    // Testing
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    implementation("com.google.android.gms:play-services-base:18.2.0")
+    implementation("com.google.android.gms:play-services-basement:18.2.0")
+    
+    // Optional: Add safety net (helps with Play Protect)
+    implementation("com.google.android.gms:play-services-safetynet:18.0.1")
 }
