@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WhatsApp Call Protector</string>
+    <string name="welcome_title">WhatsApp Call Protector</string>
+    <string name="welcome_description">Automatically enable Do Not Disturb during WhatsApp calls to avoid interruptions</string>
+    <string name="start_protection">Start Protection</string>
+    <string name="stop_protection">Stop Protection</string>
+    <string name="service_running">Protection Active</string>
+    <string name="service_stopped">Protection Inactive</string>
+    <string name="grant_permissions">Grant Permissions</string>
+    <string name="notification_channel_name">Call Protection Service</string>
+    <string name="notification_channel_description">Monitors WhatsApp calls and manages Do Not Disturb mode</string>
+    
+    <!-- Accessibility Service -->
+    <string name="accessibility_service_description">Detects when WhatsApp is in a call to automatically enable Do Not Disturb mode</string>
+    <string name="accessibility_service_label">WhatsApp Call Detector</string>
+    
+
+    <!-- Privacy Policy Link-->
+    <string name="privacy_policy_url">https://whatsappcallprotector.michaelkumsa.com/privacy-policy.html</string>
+
+    <!-- WhatsApp UI Elements for detection -->
+    <string name="whatsapp_call_screen_indicator">voip__video_ongoing_background</string>
+    <string name="whatsapp_call_button_indicator">call_button</string>
+    <string name="whatsapp_end_call_button">End call</string>
+    <string name="whatsapp_call_duration_indicator">call_duration</string>
+</resources>

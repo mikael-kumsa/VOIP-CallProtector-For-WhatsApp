@@ -1,0 +1,46 @@
+com.example.whatsappcallprotector.app-jetified-lifecycle-service-2.7.0-0 C:\Users\omen\.gradle\caches\transforms-3\10290aadb27c6a24b59276677609b6cc\transformed\jetified-lifecycle-service-2.7.0\res
+com.example.whatsappcallprotector.app-jetified-lifecycle-runtime-ktx-2.7.0-1 C:\Users\omen\.gradle\caches\transforms-3\18751ddd8ce45c3abb9ba9768abb16f8\transformed\jetified-lifecycle-runtime-ktx-2.7.0\res
+com.example.whatsappcallprotector.app-room-runtime-2.5.0-2 C:\Users\omen\.gradle\caches\transforms-3\18df2b5a32bb145f126da1bd5f6b3029\transformed\room-runtime-2.5.0\res
+com.example.whatsappcallprotector.app-lifecycle-runtime-2.7.0-3 C:\Users\omen\.gradle\caches\transforms-3\1f9cfa779d08dd1d5dc30abe8a025959\transformed\lifecycle-runtime-2.7.0\res
+com.example.whatsappcallprotector.app-drawerlayout-1.1.1-4 C:\Users\omen\.gradle\caches\transforms-3\2a217ce38db97acbee213fc9ec001c94\transformed\drawerlayout-1.1.1\res
+com.example.whatsappcallprotector.app-jetified-room-ktx-2.5.0-5 C:\Users\omen\.gradle\caches\transforms-3\2b3ca553e2d2cd66290867d1e22f0bef\transformed\jetified-room-ktx-2.5.0\res
+com.example.whatsappcallprotector.app-sqlite-2.3.0-6 C:\Users\omen\.gradle\caches\transforms-3\38b83d026dd182c0ef9ae8c66e1c007b\transformed\sqlite-2.3.0\res
+com.example.whatsappcallprotector.app-jetified-lifecycle-process-2.7.0-7 C:\Users\omen\.gradle\caches\transforms-3\3ad9f1e9d3704cc8feb2673aa1529bdb\transformed\jetified-lifecycle-process-2.7.0\res
+com.example.whatsappcallprotector.app-jetified-emoji2-views-helper-1.2.0-8 C:\Users\omen\.gradle\caches\transforms-3\4147c6fe89b7865f52e8b912279fd141\transformed\jetified-emoji2-views-helper-1.2.0\res
+com.example.whatsappcallprotector.app-material-1.10.0-9 C:\Users\omen\.gradle\caches\transforms-3\497ff2de29081d9b9497f2a8e60a59a0\transformed\material-1.10.0\res
+com.example.whatsappcallprotector.app-work-runtime-2.9.0-10 C:\Users\omen\.gradle\caches\transforms-3\4f38d49954f6160ae571da23cb3e7587\transformed\work-runtime-2.9.0\res
+com.example.whatsappcallprotector.app-jetified-annotation-experimental-1.3.0-11 C:\Users\omen\.gradle\caches\transforms-3\5d7a3acafd0824e73575f2d9d8183509\transformed\jetified-annotation-experimental-1.3.0\res
+com.example.whatsappcallprotector.app-appcompat-1.6.1-12 C:\Users\omen\.gradle\caches\transforms-3\5e5e32cba8f0618f318863c06b3eb423\transformed\appcompat-1.6.1\res
+com.example.whatsappcallprotector.app-lifecycle-viewmodel-2.7.0-13 C:\Users\omen\.gradle\caches\transforms-3\65826dd8b066699194aa1e33a1a2a13a\transformed\lifecycle-viewmodel-2.7.0\res
+com.example.whatsappcallprotector.app-jetified-appcompat-resources-1.6.1-14 C:\Users\omen\.gradle\caches\transforms-3\6e1099ec91f51c8df1c206f3b9888eb4\transformed\jetified-appcompat-resources-1.6.1\res
+com.example.whatsappcallprotector.app-jetified-lifecycle-viewmodel-savedstate-2.7.0-15 C:\Users\omen\.gradle\caches\transforms-3\70678ea97156075425ac7a72844dc01c\transformed\jetified-lifecycle-viewmodel-savedstate-2.7.0\res
+com.example.whatsappcallprotector.app-core-1.12.0-16 C:\Users\omen\.gradle\caches\transforms-3\70cf6428ffaac353aa8b6d6415eee8d9\transformed\core-1.12.0\res
+com.example.whatsappcallprotector.app-transition-1.2.0-17 C:\Users\omen\.gradle\caches\transforms-3\8ad174d893a32735a60aaccefebe2ec6\transformed\transition-1.2.0\res
+com.example.whatsappcallprotector.app-jetified-lifecycle-livedata-core-ktx-2.7.0-18 C:\Users\omen\.gradle\caches\transforms-3\932f6793eaf0fe52af7022b3fc18ff81\transformed\jetified-lifecycle-livedata-core-ktx-2.7.0\res
+com.example.whatsappcallprotector.app-fragment-1.3.6-19 C:\Users\omen\.gradle\caches\transforms-3\9a817c92d34b19f0f3138bf021e80338\transformed\fragment-1.3.6\res
+com.example.whatsappcallprotector.app-constraintlayout-2.1.4-20 C:\Users\omen\.gradle\caches\transforms-3\9ded21b13039b700a5470a20631c36b4\transformed\constraintlayout-2.1.4\res
+com.example.whatsappcallprotector.app-jetified-savedstate-1.2.1-21 C:\Users\omen\.gradle\caches\transforms-3\a705d8f1838a0bb185fca0bf1c45d3e4\transformed\jetified-savedstate-1.2.1\res
+com.example.whatsappcallprotector.app-sqlite-framework-2.3.0-22 C:\Users\omen\.gradle\caches\transforms-3\bb0a026c4795067712d6295190750fbb\transformed\sqlite-framework-2.3.0\res
+com.example.whatsappcallprotector.app-jetified-emoji2-1.2.0-23 C:\Users\omen\.gradle\caches\transforms-3\c1400a8f170d424c7451d3a3dcf38f7c\transformed\jetified-emoji2-1.2.0\res
+com.example.whatsappcallprotector.app-lifecycle-livedata-2.7.0-24 C:\Users\omen\.gradle\caches\transforms-3\c1ae02786e91fe69796401017cdee19e\transformed\lifecycle-livedata-2.7.0\res
+com.example.whatsappcallprotector.app-jetified-startup-runtime-1.1.1-25 C:\Users\omen\.gradle\caches\transforms-3\c5b3b72bf4d19b2f84af78a2542b1a62\transformed\jetified-startup-runtime-1.1.1\res
+com.example.whatsappcallprotector.app-jetified-activity-1.8.0-26 C:\Users\omen\.gradle\caches\transforms-3\c6d913e1eb623bc2e031d323679e8f31\transformed\jetified-activity-1.8.0\res
+com.example.whatsappcallprotector.app-jetified-lifecycle-livedata-ktx-2.7.0-27 C:\Users\omen\.gradle\caches\transforms-3\c91cee90c073ea53e2e77cf1c885b9c5\transformed\jetified-lifecycle-livedata-ktx-2.7.0\res
+com.example.whatsappcallprotector.app-recyclerview-1.1.0-28 C:\Users\omen\.gradle\caches\transforms-3\cd81e509549b8189307ca6d0ebb48772\transformed\recyclerview-1.1.0\res
+com.example.whatsappcallprotector.app-core-runtime-2.2.0-29 C:\Users\omen\.gradle\caches\transforms-3\d028c8e9459f5f8d6ca697b7cccbcea8\transformed\core-runtime-2.2.0\res
+com.example.whatsappcallprotector.app-jetified-profileinstaller-1.3.0-30 C:\Users\omen\.gradle\caches\transforms-3\d5a2b59571b28093cd71d0147da7335f\transformed\jetified-profileinstaller-1.3.0\res
+com.example.whatsappcallprotector.app-jetified-lifecycle-viewmodel-ktx-2.7.0-31 C:\Users\omen\.gradle\caches\transforms-3\df7e9433c662cd5e43b3cb026771a00e\transformed\jetified-lifecycle-viewmodel-ktx-2.7.0\res
+com.example.whatsappcallprotector.app-coordinatorlayout-1.1.0-32 C:\Users\omen\.gradle\caches\transforms-3\eb78d49ac0ba2519ae4c0ccb17768392\transformed\coordinatorlayout-1.1.0\res
+com.example.whatsappcallprotector.app-jetified-viewpager2-1.0.0-33 C:\Users\omen\.gradle\caches\transforms-3\ef6357aa8cf99df05a09aedaa1466e62\transformed\jetified-viewpager2-1.0.0\res
+com.example.whatsappcallprotector.app-jetified-core-ktx-1.12.0-34 C:\Users\omen\.gradle\caches\transforms-3\f3f44392337325695d5692cb84fe2e42\transformed\jetified-core-ktx-1.12.0\res
+com.example.whatsappcallprotector.app-work-runtime-ktx-2.9.0-35 C:\Users\omen\.gradle\caches\transforms-3\f552aad25e85dddda96fa401362839ba\transformed\work-runtime-ktx-2.9.0\res
+com.example.whatsappcallprotector.app-lifecycle-livedata-core-2.7.0-36 C:\Users\omen\.gradle\caches\transforms-3\fca20efe6569946c5bfcd35e223e9c3d\transformed\lifecycle-livedata-core-2.7.0\res
+com.example.whatsappcallprotector.app-cardview-1.0.0-37 C:\Users\omen\.gradle\caches\transforms-3\fd1ecb126b341bf4e285d4eafd012329\transformed\cardview-1.0.0\res
+com.example.whatsappcallprotector.app-pngs-38 D:\Mika\Prroject\Mobile Apps\WhatsAppCallProtector\app\build\generated\res\pngs\release
+com.example.whatsappcallprotector.app-resValues-39 D:\Mika\Prroject\Mobile Apps\WhatsAppCallProtector\app\build\generated\res\resValues\release
+com.example.whatsappcallprotector.app-packageReleaseResources-40 D:\Mika\Prroject\Mobile Apps\WhatsAppCallProtector\app\build\intermediates\incremental\release\packageReleaseResources\merged.dir
+com.example.whatsappcallprotector.app-packageReleaseResources-41 D:\Mika\Prroject\Mobile Apps\WhatsAppCallProtector\app\build\intermediates\incremental\release\packageReleaseResources\stripped.dir
+com.example.whatsappcallprotector.app-merged-not-compiled-resources-42 D:\Mika\Prroject\Mobile Apps\WhatsAppCallProtector\app\build\intermediates\merged-not-compiled-resources\release
+com.example.whatsappcallprotector.app-merged_res-43 D:\Mika\Prroject\Mobile Apps\WhatsAppCallProtector\app\build\intermediates\merged_res\release
+com.example.whatsappcallprotector.app-main-44 D:\Mika\Prroject\Mobile Apps\WhatsAppCallProtector\app\src\main\res
+com.example.whatsappcallprotector.app-release-45 D:\Mika\Prroject\Mobile Apps\WhatsAppCallProtector\app\src\release\res
