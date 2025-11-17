@@ -6,6 +6,8 @@ import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.example.whatsappcallprotector.service.CallMonitoringService
+import com.example.whatsappcallprotector.util.AppConstants
+import com.example.whatsappcallprotector.util.AppPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,8 +20,12 @@ class WhatsAppAccessibilityService : AccessibilityService() {
     companion object {
         private const val TAG = "WhatsAppAccessibility"
 
-        // WhatsApp package name
+        // WhatsApp package names
         const val WHATSAPP_PACKAGE = "com.whatsapp"
+        const val WHATSAPP_BUSINESS_PACKAGE = "com.whatsapp.w4b"
+        
+        // Supported WhatsApp packages
+        val SUPPORTED_PACKAGES = arrayOf(WHATSAPP_PACKAGE, WHATSAPP_BUSINESS_PACKAGE)
 
         // Track current call state
         var isInWhatsAppCall = false
@@ -27,11 +33,15 @@ class WhatsAppAccessibilityService : AccessibilityService() {
     }
 
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
+    private lateinit var appPreferences: AppPreferences
 
     /** Called when the service is started */
     override fun onServiceConnected() {
         super.onServiceConnected()
         Log.d(TAG, "WhatsApp Accessibility Service connected")
+        
+        // Initialize preferences
+        appPreferences = AppPreferences(this)
 
         // Configure the service
         configureAccessibilityService()
@@ -44,8 +54,8 @@ class WhatsAppAccessibilityService : AccessibilityService() {
     private fun configureAccessibilityService() {
         val info =
                 AccessibilityServiceInfo().apply {
-                    // Set the package names we want to monitor (only WhatsApp)
-                    packageNames = arrayOf(WHATSAPP_PACKAGE)
+                    // Set the package names we want to monitor (WhatsApp and WhatsApp Business)
+                    packageNames = SUPPORTED_PACKAGES
 
                     // Set the event types we want to listen for
                     eventTypes =
@@ -62,7 +72,7 @@ class WhatsAppAccessibilityService : AccessibilityService() {
                                     AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS
 
                     // Set timeout
-                    notificationTimeout = 100
+                    notificationTimeout = AppConstants.ACCESSIBILITY_NOTIFICATION_TIMEOUT
                 }
 
         this.serviceInfo = info
@@ -71,8 +81,8 @@ class WhatsAppAccessibilityService : AccessibilityService() {
     /** Called when accessibility events occur */
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         event?.let {
-            // Only process WhatsApp events
-            if (event.packageName != WHATSAPP_PACKAGE) return
+            // Only process WhatsApp and WhatsApp Business events
+            if (event.packageName !in SUPPORTED_PACKAGES) return
 
             when (event.eventType) {
                 AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
@@ -91,7 +101,7 @@ class WhatsAppAccessibilityService : AccessibilityService() {
 
         // Check if this is a WhatsApp call screen with delay to avoid false positives
         serviceScope.launch {
-            delay(1500) // Wait 1.5 seconds to confirm it's not a transient state
+            delay(appPreferences.detectionDelay) // Use configurable delay
 
             val rootNode = rootInActiveWindow ?: return@launch
             val isCallScreen = detectCallScreen(rootNode)
@@ -140,7 +150,7 @@ class WhatsAppAccessibilityService : AccessibilityService() {
 
         // If no direct indicators in event, scan the full window with delay
         serviceScope.launch {
-            delay(1000) // Wait 1 second to see if it's a real call
+            delay(AppConstants.WINDOW_CONTENT_CHANGE_DELAY) // Use configurable delay
 
             val rootNode = rootInActiveWindow ?: return@launch
 
@@ -162,7 +172,7 @@ class WhatsAppAccessibilityService : AccessibilityService() {
     /** Handle potential call start with verification */
     private fun handlePotentialCallStart() {
         serviceScope.launch {
-            delay(1000) // Wait 1 second to confirm
+            delay(AppConstants.POTENTIAL_CALL_VERIFICATION_DELAY) // Use configurable delay
 
             val rootNode = rootInActiveWindow ?: return@launch
             val callIndicatorsFound = scanForCallIndicators(rootNode)
@@ -182,6 +192,16 @@ class WhatsAppAccessibilityService : AccessibilityService() {
 
     /** Scan the node hierarchy for call indicators with better precision */
     private fun scanForCallIndicators(node: AccessibilityNodeInfo): Boolean {
+        return scanForCallIndicators(node, 0)
+    }
+    
+    /** Scan the node hierarchy for call indicators with depth limit for performance */
+    private fun scanForCallIndicators(node: AccessibilityNodeInfo, depth: Int): Boolean {
+        // Limit recursion depth to prevent performance issues
+        if (depth > AppConstants.MAX_NODE_SCAN_DEPTH) {
+            return false
+        }
+        
         val text = node.text?.toString()?.lowercase() ?: ""
         val desc = node.contentDescription?.toString()?.lowercase() ?: ""
 
@@ -210,9 +230,11 @@ class WhatsAppAccessibilityService : AccessibilityService() {
             return false
         }
 
-        // Recursively check children
+        // Recursively check children with depth tracking
         for (i in 0 until node.childCount) {
-            node.getChild(i)?.let { child -> if (scanForCallIndicators(child)) return true }
+            node.getChild(i)?.let { child -> 
+                if (scanForCallIndicators(child, depth + 1)) return true 
+            }
         }
 
         return false
@@ -284,7 +306,14 @@ class WhatsAppAccessibilityService : AccessibilityService() {
     /** Called when the system is about to shut down the service */
     override fun onUnbind(intent: android.content.Intent?): Boolean {
         Log.d(TAG, "WhatsApp Accessibility Service unbound")
-        isInWhatsAppCall = false
+        
+        // If we were in a call, notify the monitoring service to disable DND
+        if (isInWhatsAppCall) {
+            Log.w(TAG, "Accessibility service disabled during active call - disabling DND")
+            isInWhatsAppCall = false
+            CallMonitoringService.onWhatsAppCallEnded()
+        }
+        
         CallMonitoringService.onAccessibilityServiceDisconnected()
         return super.onUnbind(intent)
     }

@@ -1,0 +1,24 @@
+# WhatsApp Call Protector - Gradle Properties Example
+# Copy this file to gradle.properties and fill in your actual values
+# DO NOT commit gradle.properties with real passwords to version control!
+
+# Release Keystore Configuration
+# Path to your release keystore file (relative to project root)
+KEYSTORE_FILE=app/release.keystore
+
+# Keystore password (use a strong password)
+KEYSTORE_PASSWORD=your_keystore_password_here
+
+# Key alias name
+KEY_ALIAS=voip-call-protector
+
+# Key password (can be same as keystore password)
+KEY_PASSWORD=your_key_password_here
+
+# Android build configuration
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+org.gradle.parallel=true
+org.gradle.caching=true
+android.useAndroidX=true
+android.enableJetifier=true
+

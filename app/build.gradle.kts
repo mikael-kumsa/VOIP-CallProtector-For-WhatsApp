@@ -5,19 +5,23 @@ plugins {
 }
 
 android {
-    namespace = "com.example.whatsappcallprotector"
+    namespace = "com.lal.voipcallprotector"
     compileSdk = 34
 
-    lint{
-        abortOnError = false
+    lint {
+        abortOnError = true
+        checkReleaseBuilds = true
+        warningsAsErrors = false
+        disable.add("MissingTranslation")
+        disable.add("ExtraTranslation")
     }
 
     defaultConfig {
-        applicationId = "com.lal.whatsappcallprotector" 
+        applicationId = "com.lal.voipcallprotector" 
         minSdk = 26
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0.0"
+        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -26,16 +30,35 @@ android {
         buildConfigField("String", "APP_VERSION", "\"${versionName}\"")
 
         // For Google Play
-        resValue("string", "app_name", "WhatsApp Call Protector")
+        resValue("string", "app_name", "VOIP Call Protector")
     }
 
     signingConfigs {
-        create("release") {
-            // You'll need to generate a signing key
-            storeFile = file("your-release-key.keystore")
-            storePassword = "Mitayee@5"
-            keyAlias = "key0"
-            keyPassword = "Mitayee@5"
+        // Read signing credentials from gradle.properties or environment variables
+        val keystoreFile = project.findProperty("KEYSTORE_FILE") as String? 
+            ?: System.getenv("KEYSTORE_FILE")
+            ?: "app/release.keystore"
+        val keystorePasswordValue = project.findProperty("KEYSTORE_PASSWORD") as String? 
+            ?: System.getenv("KEYSTORE_PASSWORD")
+        val keyAliasNameValue = project.findProperty("KEY_ALIAS") as String? 
+            ?: System.getenv("KEY_ALIAS")
+            ?: "voip-call-protector"
+        val keyPasswordValue = project.findProperty("KEY_PASSWORD") as String? 
+            ?: System.getenv("KEY_PASSWORD")
+        
+        // Only create signing config if keystore file exists and credentials are provided
+        val keystoreFileObj = file(keystoreFile)
+        if (keystoreFileObj.exists() && keystorePasswordValue != null && keyPasswordValue != null) {
+            create("release") {
+                storeFile = keystoreFileObj
+                storePassword = keystorePasswordValue
+                keyAlias = keyAliasNameValue
+                keyPassword = keyPasswordValue
+                println("Release signing configured with keystore: $keystoreFile")
+            }
+        } else {
+            println("WARNING: Release keystore not found at '$keystoreFile' or credentials missing.")
+            println("WARNING: Release builds will NOT be signed. Generate keystore using generate-keystore.bat")
         }
     }
 
@@ -44,7 +67,13 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
-            signingConfig = signingConfigs.getByName("release")
+            // Only use signing config if it exists
+            val releaseSigningConfig = signingConfigs.findByName("release")
+            if (releaseSigningConfig != null) {
+                signingConfig = releaseSigningConfig
+            } else {
+                println("WARNING: Release build will be unsigned. Configure signing in gradle.properties")
+            }
             proguardFiles(
                     getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules.pro"
@@ -76,6 +105,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.lifecycle:lifecycle-service:2.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")

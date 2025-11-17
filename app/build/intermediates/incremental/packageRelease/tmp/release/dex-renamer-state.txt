@@ -1,4 +1,0 @@
-#Thu Nov 13 15:11:56 EAT 2025
-base.0=D\:\\Mika\\Prroject\\Mobile Apps\\WhatsAppCallProtector\\app\\build\\intermediates\\dex\\release\\minifyReleaseWithR8\\classes.dex
-renamed.0=classes.dex
-path.0=classes.dex

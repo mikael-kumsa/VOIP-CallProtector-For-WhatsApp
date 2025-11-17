@@ -4,15 +4,20 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import com.lal.voipcallprotector.R
 import com.example.whatsappcallprotector.service.CallMonitoringService
+import com.example.whatsappcallprotector.ui.PermissionWizardDialog
+import com.example.whatsappcallprotector.util.AppPreferences
 import com.example.whatsappcallprotector.util.PermissionChecker
 
 /**
- * Main Activity for WhatsApp Call Protector app Handles UI and permission management for the call
+ * Main Activity for VOIP Call Protector app. Handles UI and permission management for the call
  * protection service
  */
 class MainActivity : AppCompatActivity() {
@@ -26,17 +31,22 @@ class MainActivity : AppCompatActivity() {
     private lateinit var grantPermissionsButton: Button
     private lateinit var startProtectionButton: Button
     private lateinit var stopProtectionButton: Button
+    private lateinit var viewStatisticsButton: Button
+    private lateinit var statisticsSummary: TextView
+    private lateinit var statusIndicator: android.view.View
 
     // Permission checker instance
     private lateinit var permissionChecker: PermissionChecker
+    private lateinit var appPreferences: AppPreferences
 
     /** Called when the activity is first created */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Initialize permission checker
+        // Initialize permission checker and preferences
         permissionChecker = PermissionChecker(this)
+        appPreferences = AppPreferences(this)
 
         // Initialize UI components
         initializeViews()
@@ -58,6 +68,9 @@ class MainActivity : AppCompatActivity() {
         grantPermissionsButton = findViewById(R.id.grantPermissionsButton)
         startProtectionButton = findViewById(R.id.startProtectionButton)
         stopProtectionButton = findViewById(R.id.stopProtectionButton)
+        viewStatisticsButton = findViewById(R.id.viewStatisticsButton)
+        statisticsSummary = findViewById(R.id.statisticsSummary)
+        statusIndicator = findViewById(R.id.statusIndicator)
     }
 
     /** Set up click listeners for all buttons */
@@ -70,43 +83,82 @@ class MainActivity : AppCompatActivity() {
 
         // Stop Protection button
         stopProtectionButton.setOnClickListener { stopCallProtection() }
-        // privacy policy button
+        // Privacy policy button
         findViewById<Button>(R.id.privacyPolicyButton).setOnClickListener {
             val privacyPolicyUrl = getString(R.string.privacy_policy_url)
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(privacyPolicyUrl))
             startActivity(intent)
         }
+        
+        // View statistics button
+        viewStatisticsButton.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
+    }
+    
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+    
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_settings -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
-    /** Open system settings to grant required permissions */
+    /** Open system settings to grant required permissions - Simplified flow */
     private fun openPermissionSettings() {
-        // Check which permissions are missing and guide user accordingly
-        if (!permissionChecker.hasDndPermission()) {
-            // Open DND permission settings
-            permissionChecker.openDndSettings()
-        } else if (!permissionChecker.hasAccessibilityPermission()) {
-            // Open Accessibility settings
-            permissionChecker.openAccessibilitySettings()
-        } else if (!permissionChecker.hasMicrophonePermission()) {
-            // Request microphone permission
-            permissionChecker.requestMicrophonePermission(this)
-        } else if (!permissionChecker.hasPhoneStatePermission()) {
-            // Request phone state permission
-            permissionChecker.requestMicrophonePermission(this) // Both are requested together
+        // Use the permission wizard dialog for a better user experience
+        val wizard = PermissionWizardDialog.newInstance {
+            // All permissions granted callback
+            updateUI()
+            android.widget.Toast.makeText(
+                this,
+                "All permissions granted! You can now start protection.",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
         }
+        wizard.show(supportFragmentManager, "PermissionWizard")
     }
 
     /** Start the call protection service */
     private fun startCallProtection() {
         if (permissionChecker.hasAllPermissions()) {
-            // Start the foreground service
-            val serviceIntent = Intent(this, CallMonitoringService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent)
-            } else {
-                startService(serviceIntent)
+            try {
+                // Start the foreground service
+                val serviceIntent = Intent(this, CallMonitoringService::class.java)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(serviceIntent)
+                } else {
+                    startService(serviceIntent)
+                }
+                // Update UI after a short delay to allow service to initialize
+                startProtectionButton.postDelayed({
+                    updateUI()
+                }, 300)
+            } catch (e: IllegalStateException) {
+                // Handle case where service cannot be started (e.g., app in background on Android 8+)
+                android.widget.Toast.makeText(
+                    this,
+                    "Cannot start service. Please try again.",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+                android.util.Log.e("MainActivity", "Failed to start service", e)
+            } catch (e: Exception) {
+                android.widget.Toast.makeText(
+                    this,
+                    "Error starting protection service: ${e.message}",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+                android.util.Log.e("MainActivity", "Failed to start service", e)
             }
-            updateUI()
         } else {
             // Show message that permissions are required
             openPermissionSettings()
@@ -115,10 +167,22 @@ class MainActivity : AppCompatActivity() {
 
     /** Stop the call protection service */
     private fun stopCallProtection() {
-        // Stop the service
-        val serviceIntent = Intent(this, CallMonitoringService::class.java)
-        stopService(serviceIntent)
-        updateUI()
+        try {
+            // Stop the service
+            val serviceIntent = Intent(this, CallMonitoringService::class.java)
+            stopService(serviceIntent)
+            // Update UI after a short delay to allow service to stop
+            stopProtectionButton.postDelayed({
+                updateUI()
+            }, 300)
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(
+                this,
+                "Error stopping protection service: ${e.message}",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+            android.util.Log.e("MainActivity", "Failed to stop service", e)
+        }
     }
 
     /** Update the UI based on current service state and permissions */
@@ -131,6 +195,15 @@ class MainActivity : AppCompatActivity() {
 
         // Update button states
         updateButtonStates()
+        
+        // Update statistics summary
+        updateStatisticsSummary()
+    }
+    
+    /** Update statistics summary on main screen */
+    private fun updateStatisticsSummary() {
+        val totalCalls = appPreferences.totalCalls
+        statisticsSummary.text = "$totalCalls call${if (totalCalls != 1) "s" else ""}"
     }
 
     /** Update permission status displays */
@@ -138,28 +211,40 @@ class MainActivity : AppCompatActivity() {
         // DND permission
         if (permissionChecker.hasDndPermission()) {
             dndPermissionStatus.text = "Granted"
-            dndPermissionStatus.setTextColor(getColor(R.color.success_green))
+            dndPermissionStatus.setTextColor(getColor(R.color.white))
+            dndPermissionStatus.background = getDrawable(R.drawable.permission_status_bg)
+            dndPermissionStatus.backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.success_light))
         } else {
             dndPermissionStatus.text = "Not Granted"
-            dndPermissionStatus.setTextColor(getColor(R.color.error_red))
+            dndPermissionStatus.setTextColor(getColor(R.color.error))
+            dndPermissionStatus.background = getDrawable(R.drawable.permission_status_bg)
+            dndPermissionStatus.backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.error_light))
         }
 
         // Accessibility permission
         if (permissionChecker.hasAccessibilityPermission()) {
             accessibilityPermissionStatus.text = "Granted"
-            accessibilityPermissionStatus.setTextColor(getColor(R.color.success_green))
+            accessibilityPermissionStatus.setTextColor(getColor(R.color.white))
+            accessibilityPermissionStatus.background = getDrawable(R.drawable.permission_status_bg)
+            accessibilityPermissionStatus.backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.success_light))
         } else {
             accessibilityPermissionStatus.text = "Not Granted"
-            accessibilityPermissionStatus.setTextColor(getColor(R.color.error_red))
+            accessibilityPermissionStatus.setTextColor(getColor(R.color.error))
+            accessibilityPermissionStatus.background = getDrawable(R.drawable.permission_status_bg)
+            accessibilityPermissionStatus.backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.error_light))
         }
 
         // Microphone permission
         if (permissionChecker.hasMicrophonePermission()) {
             microphonePermissionStatus.text = "Granted"
-            microphonePermissionStatus.setTextColor(getColor(R.color.success_green))
+            microphonePermissionStatus.setTextColor(getColor(R.color.white))
+            microphonePermissionStatus.background = getDrawable(R.drawable.permission_status_bg)
+            microphonePermissionStatus.backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.success_light))
         } else {
             microphonePermissionStatus.text = "Not Granted"
-            microphonePermissionStatus.setTextColor(getColor(R.color.error_red))
+            microphonePermissionStatus.setTextColor(getColor(R.color.error))
+            microphonePermissionStatus.background = getDrawable(R.drawable.permission_status_bg)
+            microphonePermissionStatus.backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.error_light))
         }
     }
 
@@ -169,13 +254,15 @@ class MainActivity : AppCompatActivity() {
 
         if (isServiceRunning) {
             statusText.text = getString(R.string.service_running)
-            statusText.setTextColor(getColor(R.color.success_green))
-            statusDescription.text = "DND will be automatically enabled during WhatsApp calls"
+            statusText.setTextColor(getColor(R.color.success))
+            statusDescription.text = "DND will be automatically enabled during messaging app calls"
+            statusIndicator.backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.success))
         } else {
             statusText.text = getString(R.string.service_stopped)
-            statusText.setTextColor(getColor(R.color.error_red))
+            statusText.setTextColor(getColor(R.color.error))
             statusDescription.text =
-                    "Start protection to automatically enable DND during WhatsApp calls"
+                    "Start protection to automatically enable DND during messaging app calls"
+            statusIndicator.backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.error))
         }
     }
 
@@ -208,5 +295,9 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionChecker.onRequestPermissionsResult(requestCode, permissions, grantResults)
         updateUI()
+        
+        // Notify permission wizard dialog if it's open
+        val wizard = supportFragmentManager.findFragmentByTag("PermissionWizard") as? PermissionWizardDialog
+        wizard?.onResume() // Trigger update to check if permissions were granted
     }
 }

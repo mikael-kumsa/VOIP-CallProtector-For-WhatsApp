@@ -73,7 +73,7 @@ class PermissionChecker(private val context: Context) {
         return phoneStatePermissionGranted || 
                ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
     }
-
+    
     /**
      * Check if all required permissions are granted
      * @return Boolean true if all permissions are granted
@@ -156,7 +156,7 @@ class PermissionChecker(private val context: Context) {
                 }
             }
             
-            // Return true only if BOTH permissions are granted
+            // Return true only if all required permissions are granted
             val allGranted = microphonePermissionGranted && phoneStatePermissionGranted
             Log.d("PermissionChecker", "All required permissions granted: $allGranted")
             return allGranted
@@ -175,10 +175,22 @@ class PermissionChecker(private val context: Context) {
 
     /**
      * Open system settings for Accessibility service
+     * Tries to open directly to the app's accessibility service if possible
      */
     fun openAccessibilitySettings() {
+        // Try to open directly to our service settings
         val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        
+        // On some devices, we can open directly to the service
+        try {
+            val packageName = context.packageName
+            val serviceName = "$packageName.accessibility.WhatsAppAccessibilityService"
+            intent.putExtra(":settings:fragment_args_key", serviceName)
+        } catch (e: Exception) {
+            // Fallback to general accessibility settings
+        }
+        
         context.startActivity(intent)
     }
 
@@ -198,8 +210,8 @@ class PermissionChecker(private val context: Context) {
      */
     fun getPermissionDescriptions(): Map<String, String> {
         return mapOf(
-            "Do Not Disturb Access" to "Allows the app to automatically enable Do Not Disturb mode during WhatsApp calls",
-            "Accessibility Service" to "Allows the app to detect when WhatsApp is in a call by monitoring the screen",
+            "Do Not Disturb Access" to "Allows the app to automatically enable Do Not Disturb mode during messaging app calls",
+            "Accessibility Service" to "Allows the app to detect when messaging apps are in a call by monitoring the screen",
             "Microphone Access" to "Allows the app to detect when the microphone is active to distinguish between calls and voice messages",
             "Phone State Access" to "Allows the app to detect incoming calls and phone state changes"
         )
@@ -208,11 +220,13 @@ class PermissionChecker(private val context: Context) {
     /**
      * Check if the app can request all permissions automatically
      * Some permissions like DND and Accessibility require manual user action in settings
+     * @return true if all permissions that can be auto-requested are granted
      */
     fun canRequestAllPermissionsAutomatically(): Boolean {
         // Only microphone and phone state can be requested automatically
         // DND and Accessibility require manual setup in settings
-        return hasDndPermission() && hasAccessibilityPermission()
+        // This returns true if the auto-requestable permissions are granted
+        return hasMicrophonePermission() && hasPhoneStatePermission()
     }
 
     /**

@@ -51,13 +51,25 @@
             </intent-filter>
         </activity>
 
+        <!-- Settings Activity -->
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- About Activity -->
+        <activity
+            android:name=".AboutActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Our foreground service for monitoring -->
         <service
             android:name=".service.CallMonitoringService"
             android:enabled="true"
             android:exported="false" />
 
-        <!-- Accessibility Service for WhatsApp detection -->
+        <!-- Accessibility Service for messaging app call detection -->
         <service
             android:name=".accessibility.WhatsAppAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"

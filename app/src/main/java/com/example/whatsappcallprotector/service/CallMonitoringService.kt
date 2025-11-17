@@ -17,8 +17,11 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
-import com.example.whatsappcallprotector.R
+import com.lal.voipcallprotector.BuildConfig
+import com.lal.voipcallprotector.R
 import com.example.whatsappcallprotector.accessibility.WhatsAppAccessibilityService
+import com.example.whatsappcallprotector.util.AppConstants
+import com.example.whatsappcallprotector.util.AppPreferences
 import com.example.whatsappcallprotector.util.PermissionChecker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,9 +37,7 @@ class CallMonitoringService : LifecycleService() {
     companion object {
         private const val TAG = "CallMonitoringService"
         
-        // Notification channel and ID
-        private const val NOTIFICATION_CHANNEL_ID = "call_protection_channel"
-        private const val NOTIFICATION_ID = 1
+        // Notification channel and ID (moved to AppConstants)
         
         // Service state tracking
         var isRunning = false
@@ -75,6 +76,10 @@ class CallMonitoringService : LifecycleService() {
     // Audio focus tracking
     private var hasVoiceCallAudioFocus = false
     
+    // Service lifecycle tracking
+    private var isServiceActive = false
+    private var monitoringJob: Job? = null
+    
     // External event handlers
     private var onCallStarted: (() -> Unit)? = null
     private var onCallEnded: (() -> Unit)? = null
@@ -89,6 +94,10 @@ class CallMonitoringService : LifecycleService() {
     private lateinit var audioManager: AudioManager
     private lateinit var notificationManager: NotificationManager
     private lateinit var permissionChecker: PermissionChecker
+    private lateinit var appPreferences: AppPreferences
+    
+    // Call tracking for statistics
+    private var callStartTime: Long = 0
     
     // Modern audio focus request (Android O+)
     private var audioFocusRequest: AudioFocusRequest? = null
@@ -135,6 +144,7 @@ class CallMonitoringService : LifecycleService() {
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         permissionChecker = PermissionChecker(this)
+        appPreferences = AppPreferences(this)
         
         // Create notification channel
         createNotificationChannel()
@@ -143,6 +153,7 @@ class CallMonitoringService : LifecycleService() {
         activeService = this
         
         isRunning = true
+        isServiceActive = true
         
         // Start state monitoring
         startStateMonitoring()
@@ -152,11 +163,18 @@ class CallMonitoringService : LifecycleService() {
      * Called when the service is started
      */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Handle stop action from notification
+        if (intent?.action == "STOP_SERVICE") {
+            Log.d(TAG, "Stop service requested from notification")
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        
         super.onStartCommand(intent, flags, startId)
         Log.d(TAG, "CallMonitoringService started")
         
         // Start as foreground service with persistent notification
-        startForeground(NOTIFICATION_ID, createNotification())
+        startForeground(AppConstants.NOTIFICATION_ID, createNotification())
         
         // Start monitoring for calls
         startCallMonitoring()
@@ -179,6 +197,11 @@ class CallMonitoringService : LifecycleService() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "CallMonitoringService destroyed")
+        
+        // Stop monitoring first
+        isServiceActive = false
+        monitoringJob?.cancel()
+        monitoringJob = null
         
         // Clean up resources
         stopCallMonitoring()
@@ -289,10 +312,21 @@ class CallMonitoringService : LifecycleService() {
      * Start periodic state monitoring
      */
     private fun startStateMonitoring() {
-        serviceScope.launch {
-            while (isRunning) {
+        // Cancel any existing monitoring job
+        monitoringJob?.cancel()
+        
+        monitoringJob = serviceScope.launch {
+            while (isServiceActive) {
+                try {
                 checkCallState()
-                delay(3000) // Check every 3 seconds
+                    delay(AppConstants.STATE_CHECK_INTERVAL) // Use configurable interval
+                } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) {
+                        throw e // Re-throw cancellation to properly stop the coroutine
+                    }
+                    Log.e(TAG, "Error in state monitoring", e)
+                    delay(AppConstants.STATE_CHECK_INTERVAL) // Continue monitoring even if there's an error
+                }
             }
         }
     }
@@ -301,15 +335,25 @@ class CallMonitoringService : LifecycleService() {
      * Check current call state and update DND if needed
      */
     private fun checkCallState() {
+        // Verify DND permission is still granted
+        if (!permissionChecker.hasDndPermission()) {
+            Log.w(TAG, "DND permission revoked - disabling DND if active")
+            if (wasDndEnabledByApp) {
+                disableDndAfterCall()
+            }
+            return
+        }
+        
         val isWhatsAppCallActive = WhatsAppAccessibilityService.isInWhatsAppCall
         val isInCallMode = audioManager.mode == AudioManager.MODE_IN_CALL || 
                            audioManager.mode == AudioManager.MODE_IN_COMMUNICATION
         
         Log.d(TAG, "State check - WhatsAppCall: $isWhatsAppCallActive, AudioMode: ${audioManager.mode}, InCallMode: $isInCallMode")
         
-        // Enable DND if WhatsApp call is active and we're in call mode
-        if (isWhatsAppCallActive && isInCallMode && !isInWhatsAppCall) {
-            Log.i(TAG, "Conditions met for DND - enabling")
+        // Enable DND if WhatsApp call is active (audio mode check is secondary verification)
+        // Primary detection is from Accessibility Service, audio mode is just confirmation
+        if (isWhatsAppCallActive && !isInWhatsAppCall) {
+            Log.i(TAG, "WhatsApp call detected - enabling DND")
             enableDndForCall()
         } 
         // Disable DND if WhatsApp call ended but DND is still active
@@ -368,6 +412,11 @@ class CallMonitoringService : LifecycleService() {
             notificationManager.setInterruptionFilter(INTERRUPTION_FILTER_NONE)
             wasDndEnabledByApp = true
             isInWhatsAppCall = true
+            callStartTime = System.currentTimeMillis() // Track call start time for statistics
+            
+            // Update statistics
+            appPreferences.incrementCallCount()
+            appPreferences.lastCallTime = callStartTime
             
             Log.i(TAG, "DND enabled for WhatsApp call")
             
@@ -375,7 +424,7 @@ class CallMonitoringService : LifecycleService() {
             updateNotification()
             
             // Show debug toast
-            showDebugToast("DND Enabled for WhatsApp Call")
+            showDebugToast("DND Enabled for messaging app call")
             
             // Notify listeners
             onCallStarted?.invoke()
@@ -398,6 +447,14 @@ class CallMonitoringService : LifecycleService() {
         }
         
         try {
+            // Calculate call duration and update statistics
+            if (callStartTime > 0) {
+                val callDuration = System.currentTimeMillis() - callStartTime
+                appPreferences.addCallDuration(callDuration)
+                Log.d(TAG, "Call duration: ${callDuration}ms")
+                callStartTime = 0
+            }
+            
             // Restore original DND state
             notificationManager.setInterruptionFilter(originalInterruptionFilter)
             wasDndEnabledByApp = false
@@ -435,12 +492,16 @@ class CallMonitoringService : LifecycleService() {
     }
 
     /**
-     * Show debug toast message
+     * Show debug toast message (only in debug builds)
      */
     private fun showDebugToast(message: String) {
+        if (BuildConfig.DEBUG) {
         serviceScope.launch(Dispatchers.Main) {
             android.widget.Toast.makeText(this@CallMonitoringService, message, android.widget.Toast.LENGTH_SHORT).show()
         }
+        }
+        // Always log for debugging purposes
+        Log.d(TAG, "Debug Toast: $message")
     }
 
     /**
@@ -449,7 +510,7 @@ class CallMonitoringService : LifecycleService() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
+                AppConstants.NOTIFICATION_CHANNEL_ID,
                 getString(R.string.notification_channel_name),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
@@ -463,30 +524,56 @@ class CallMonitoringService : LifecycleService() {
     }
 
     /**
-     * Create foreground service notification
+     * Create foreground service notification with actions
      */
     private fun createNotification(): Notification {
         val notificationText = if (isInWhatsAppCall) {
-            "Monitoring WhatsApp call - DND active"
+            "Monitoring messaging app call - DND active"
         } else {
-            "Monitoring for WhatsApp calls"
+            "Monitoring for messaging app calls"
         }
         
-        return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+        // Create intent for opening app
+        val openAppIntent = Intent(this, com.example.whatsappcallprotector.MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val openAppPendingIntent = android.app.PendingIntent.getActivity(
+            this, 0, openAppIntent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        // Create intent for stopping service
+        val stopIntent = Intent(this, CallMonitoringService::class.java).apply {
+            action = "STOP_SERVICE"
+        }
+        val stopPendingIntent = android.app.PendingIntent.getService(
+            this, 1, stopIntent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        return NotificationCompat.Builder(this, AppConstants.NOTIFICATION_CHANNEL_ID)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(notificationText)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
+            .setContentIntent(openAppPendingIntent)
+            .addAction(
+                android.R.drawable.ic_menu_close_clear_cancel,
+                "Stop Protection",
+                stopPendingIntent
+            )
+            .setStyle(NotificationCompat.BigTextStyle().bigText(notificationText))
             .build()
     }
+    
 
     /**
      * Update the foreground notification
      */
     private fun updateNotification() {
-        notificationManager.notify(NOTIFICATION_ID, createNotification())
+        notificationManager.notify(AppConstants.NOTIFICATION_ID, createNotification())
     }
 
     /**

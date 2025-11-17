@@ -6,6 +6,9 @@ app/build/
 # Local configuration
 local.properties
 *.keystore
+app/*.keystore
+app/release.keystore
+gradle.properties
 
 # Android Studio
 .idea/
@@ -14,5 +17,14 @@ local.properties
 # Log files
 *.log
 
-# APKs
+# APKs and AABs
 *.apk
+*.aab
+
+# Release builds
+app/release/
+app/build/outputs/
+
+# Keystore backups
+*.keystore.bak
+*.jks

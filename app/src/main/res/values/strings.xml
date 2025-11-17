@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">WhatsApp Call Protector</string>
-    <string name="welcome_title">WhatsApp Call Protector</string>
-    <string name="app_description">WhatsApp Call Protector automatically enables Do Not Disturb mode during WhatsApp calls to prevent interruptions. The app requires Accessibility permission to detect WhatsApp calls, Do Not Disturb access to silence incoming calls, and microphone permission to distinguish between calls and voice messages. All processing happens locally on your device - no data is collected or shared.</string>
-    <string name="welcome_description">Automatically enable Do Not Disturb during WhatsApp calls to avoid interruptions</string>
+    <string name="app_name">VOIP Call Protector</string>
+    <string name="welcome_title">VOIP Call Protector</string>
+    <string name="app_description">VOIP Call Protector automatically enables Do Not Disturb mode during messaging app calls to prevent interruptions. The app requires Accessibility permission to detect VOIP calls, Do Not Disturb access to silence incoming calls, and microphone permission to distinguish between calls and voice messages. All processing happens locally on your device - no data is collected or shared. This app works with third-party messaging applications but is not affiliated with, endorsed by, or sponsored by any messaging service provider.</string>
+    <string name="welcome_description">Automatically enable Do Not Disturb during messaging app calls to avoid interruptions</string>
     <string name="start_protection">Start Protection</string>
     <string name="stop_protection">Stop Protection</string>
     <string name="service_running">Protection Active</string>
     <string name="service_stopped">Protection Inactive</string>
     <string name="grant_permissions">Grant Permissions</string>
     <string name="notification_channel_name">Call Protection Service</string>
-    <string name="notification_channel_description">Monitors WhatsApp calls and manages Do Not Disturb mode</string>
+    <string name="notification_channel_description">Monitors messaging app calls and manages Do Not Disturb mode</string>
     
     <!-- Accessibility Service -->
-    <string name="accessibility_service_description">Detects when WhatsApp is in a call to automatically enable Do Not Disturb mode</string>
-    <string name="accessibility_service_label">WhatsApp Call Detector</string>
+    <string name="accessibility_service_description">Detects when messaging apps are in a call to automatically enable Do Not Disturb mode</string>
+    <string name="accessibility_service_label">VOIP Call Detector</string>
     
 
     <!-- Privacy Policy Link-->
-    <string name="privacy_policy_url">https://whatsappcallprotector.michaelkumsa.com/privacy-policy</string>
+    <string name="privacy_policy_url">https://whatsappcallprotector.michaelkumsa.com/privacy-policy.html</string>
 
-    <!-- WhatsApp UI Elements for detection -->
+    <!-- Messaging App UI Elements for detection -->
     <string name="whatsapp_call_screen_indicator">voip__video_ongoing_background</string>
     <string name="whatsapp_call_button_indicator">call_button</string>
     <string name="whatsapp_end_call_button">End call</string>
