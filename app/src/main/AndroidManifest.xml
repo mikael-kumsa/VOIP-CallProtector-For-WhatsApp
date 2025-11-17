@@ -13,6 +13,7 @@
 
     <!-- Permission to run in foreground -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
 
     <!-- Permission to check phone state (for call detection) -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -33,17 +34,9 @@
         android:theme="@style/Theme.WhatsAppCallProtector"
         tools:targetApi="31">
 
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-
-        <meta-data
-            android:name="com.google.android.gms.security.ProviderInstalled"
-            android:value="true" />
-
         <!-- Main Activity -->
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.whatsappcallprotector.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -53,25 +46,26 @@
 
         <!-- Settings Activity -->
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.example.whatsappcallprotector.SettingsActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName="com.example.whatsappcallprotector.MainActivity" />
 
         <!-- About Activity -->
         <activity
-            android:name=".AboutActivity"
+            android:name="com.example.whatsappcallprotector.AboutActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName="com.example.whatsappcallprotector.MainActivity" />
 
         <!-- Our foreground service for monitoring -->
         <service
-            android:name=".service.CallMonitoringService"
+            android:name="com.example.whatsappcallprotector.service.CallMonitoringService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="phoneCall" />
 
         <!-- Accessibility Service for messaging app call detection -->
         <service
-            android:name=".accessibility.WhatsAppAccessibilityService"
+            android:name="com.example.whatsappcallprotector.accessibility.WhatsAppAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:exported="true"
             android:label="@string/accessibility_service_label">

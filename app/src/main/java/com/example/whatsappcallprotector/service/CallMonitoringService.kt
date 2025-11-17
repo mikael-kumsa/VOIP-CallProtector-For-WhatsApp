@@ -174,7 +174,12 @@ class CallMonitoringService : LifecycleService() {
         Log.d(TAG, "CallMonitoringService started")
         
         // Start as foreground service with persistent notification
-        startForeground(AppConstants.NOTIFICATION_ID, createNotification())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // Android 14+ (API 34) requires foreground service type
+            startForeground(AppConstants.NOTIFICATION_ID, createNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL)
+        } else {
+            startForeground(AppConstants.NOTIFICATION_ID, createNotification())
+        }
         
         // Start monitoring for calls
         startCallMonitoring()

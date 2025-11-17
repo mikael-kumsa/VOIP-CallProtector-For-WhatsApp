@@ -6,6 +6,7 @@
     <color name="primary_dark">#128C7E</color>
     <color name="primary_light">#4AE584</color>
     <color name="on_primary">#FFFFFF</color>
+    <color name="mainbg">#102216</color>
     
     <!-- Secondary Colors (Blue Accent) -->
     <color name="secondary">#34B7F1</color>

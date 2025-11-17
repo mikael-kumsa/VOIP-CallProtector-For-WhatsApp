@@ -26,7 +26,12 @@ class AboutActivity : AppCompatActivity() {
         try {
             val packageInfo = packageManager.getPackageInfo(packageName, 0)
             val versionName = packageInfo.versionName
-            val versionCode = packageInfo.longVersionCode
+            val versionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                packageInfo.longVersionCode
+            } else {
+                @Suppress("DEPRECATION")
+                packageInfo.versionCode.toLong()
+            }
             findViewById<TextView>(R.id.versionText).text = "Version $versionName (Build $versionCode)"
         } catch (e: Exception) {
             findViewById<TextView>(R.id.versionText).text = "Version 1.0"

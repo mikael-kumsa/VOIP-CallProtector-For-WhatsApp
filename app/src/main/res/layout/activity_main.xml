@@ -422,34 +422,22 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Control Buttons -->
+                <!-- Protection Toggle Button -->
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/startProtectionButton"
+                    android:id="@+id/protectionToggleButton"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="72dp"
                     android:text="@string/start_protection"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp"
-                    app:icon="@android:drawable/ic_media_play"
-                    app:iconGravity="textStart"
-                    app:iconPadding="8dp"
-                    app:iconSize="24dp"
-                    style="@style/ButtonPrimary" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/stopProtectionButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:text="@string/stop_protection"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="20dp"
-                    app:icon="@android:drawable/ic_media_pause"
+                    android:elevation="4dp"
+                    app:icon="@android:drawable/ic_media_play"
                     app:iconGravity="textStart"
-                    app:iconPadding="8dp"
-                    app:iconSize="24dp"
-                    style="@style/ButtonSecondary" />
+                    app:iconPadding="12dp"
+                    app:iconSize="28dp"
+                    app:cornerRadius="16dp"
+                    style="@style/ButtonPrimary" />
 
                 <!-- Quick Stats Card -->
                 <com.google.android.material.card.MaterialCardView

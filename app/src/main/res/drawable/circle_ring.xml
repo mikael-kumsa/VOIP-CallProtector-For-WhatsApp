@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <size android:width="240dp" android:height="240dp" />
+    <!-- transparent center achieved by using stroke instead of fill -->
+    <stroke
+        android:width="2dp"
+        android:color="#1A8F3C" /> <!-- tweak color/alpha -->
+    <solid android:color="#00000000" />
+</shape>

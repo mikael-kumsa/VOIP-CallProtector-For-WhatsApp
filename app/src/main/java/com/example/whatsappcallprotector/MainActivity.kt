@@ -7,8 +7,10 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
+import com.google.android.material.button.MaterialButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.lal.voipcallprotector.R
 import com.example.whatsappcallprotector.service.CallMonitoringService
@@ -29,8 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var accessibilityPermissionStatus: TextView
     private lateinit var microphonePermissionStatus: TextView
     private lateinit var grantPermissionsButton: Button
-    private lateinit var startProtectionButton: Button
-    private lateinit var stopProtectionButton: Button
+    private lateinit var protectionToggleButton: MaterialButton
     private lateinit var viewStatisticsButton: Button
     private lateinit var statisticsSummary: TextView
     private lateinit var statusIndicator: android.view.View
@@ -66,8 +67,7 @@ class MainActivity : AppCompatActivity() {
         accessibilityPermissionStatus = findViewById(R.id.accessibilityPermissionStatus)
         microphonePermissionStatus = findViewById(R.id.microphonePermissionStatus)
         grantPermissionsButton = findViewById(R.id.grantPermissionsButton)
-        startProtectionButton = findViewById(R.id.startProtectionButton)
-        stopProtectionButton = findViewById(R.id.stopProtectionButton)
+        protectionToggleButton = findViewById(R.id.protectionToggleButton)
         viewStatisticsButton = findViewById(R.id.viewStatisticsButton)
         statisticsSummary = findViewById(R.id.statisticsSummary)
         statusIndicator = findViewById(R.id.statusIndicator)
@@ -78,11 +78,14 @@ class MainActivity : AppCompatActivity() {
         // Grant Permissions button
         grantPermissionsButton.setOnClickListener { openPermissionSettings() }
 
-        // Start Protection button
-        startProtectionButton.setOnClickListener { startCallProtection() }
-
-        // Stop Protection button
-        stopProtectionButton.setOnClickListener { stopCallProtection() }
+        // Protection Toggle button - handles both start and stop
+        protectionToggleButton.setOnClickListener {
+            if (CallMonitoringService.isRunning) {
+                stopCallProtection()
+            } else {
+                startCallProtection()
+            }
+        }
         // Privacy policy button
         findViewById<Button>(R.id.privacyPolicyButton).setOnClickListener {
             val privacyPolicyUrl = getString(R.string.privacy_policy_url)
@@ -140,7 +143,7 @@ class MainActivity : AppCompatActivity() {
                     startService(serviceIntent)
                 }
                 // Update UI after a short delay to allow service to initialize
-                startProtectionButton.postDelayed({
+                protectionToggleButton.postDelayed({
                     updateUI()
                 }, 300)
             } catch (e: IllegalStateException) {
@@ -172,7 +175,7 @@ class MainActivity : AppCompatActivity() {
             val serviceIntent = Intent(this, CallMonitoringService::class.java)
             stopService(serviceIntent)
             // Update UI after a short delay to allow service to stop
-            stopProtectionButton.postDelayed({
+            protectionToggleButton.postDelayed({
                 updateUI()
             }, 300)
         } catch (e: Exception) {
@@ -271,9 +274,22 @@ class MainActivity : AppCompatActivity() {
         val hasAllPermissions = permissionChecker.hasAllPermissions()
         val isServiceRunning = CallMonitoringService.isRunning
 
-        // Enable/disable buttons based on state
-        startProtectionButton.isEnabled = hasAllPermissions && !isServiceRunning
-        stopProtectionButton.isEnabled = isServiceRunning
+        // Enable/disable toggle button based on permissions
+        protectionToggleButton.isEnabled = hasAllPermissions
+
+        if (isServiceRunning) {
+            // Protection is active - show stop state
+            protectionToggleButton.text = getString(R.string.stop_protection)
+            protectionToggleButton.setTextColor(getColor(R.color.white))
+            protectionToggleButton.backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.error))
+            protectionToggleButton.icon = ContextCompat.getDrawable(this, android.R.drawable.ic_media_pause)
+        } else {
+            // Protection is inactive - show start state
+            protectionToggleButton.text = getString(R.string.start_protection)
+            protectionToggleButton.setTextColor(getColor(R.color.white))
+            protectionToggleButton.backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.success))
+            protectionToggleButton.icon = ContextCompat.getDrawable(this, android.R.drawable.ic_media_play)
+        }
 
         // Show/hide grant permissions button
         grantPermissionsButton.isVisible = !hasAllPermissions
